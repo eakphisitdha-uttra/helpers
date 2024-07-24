@@ -7,9 +7,17 @@ import (
 	"image"
 	"os"
 	"strings"
+	"time"
 )
 
-func UploadBase64(base64Code, fileName, filePath string) (string, string, int64, error) {
+type UploadBase64Struct struct {
+	FullPath string
+	Name     string
+	Type     string
+	Size     int64
+}
+
+func UploadBase64(base64Code, fileName, folderPath string) (UploadBase64Struct, error) {
 
 	base64Data := strings.Split(base64Code, ",")
 	if len(base64Data) > 1 {
@@ -18,38 +26,48 @@ func UploadBase64(base64Code, fileName, filePath string) (string, string, int64,
 
 	imgBytes, err := base64.StdEncoding.DecodeString(strings.TrimSpace(base64Code))
 	if err != nil {
-		return "", "", 0, err
+		return UploadBase64Struct{}, err
 	}
 	_, imageType, err := image.Decode(bytes.NewReader(imgBytes))
 	if err != nil {
-		return "", "", 0, err
+		return UploadBase64Struct{}, err
 	}
 
-	if _, err := os.Stat(filePath); os.IsNotExist(err) {
-		err := os.MkdirAll(filePath, 0755)
+	if _, err := os.Stat(folderPath); os.IsNotExist(err) {
+		err := os.MkdirAll(folderPath, 0755)
 		if err != nil {
-			return "", "", 0, err
+			return UploadBase64Struct{}, err
 		}
 	}
-	imgPath := fmt.Sprintf("%s/%s.%s", filePath, fileName, imageType)
+
+	dateStr := time.Now().Format("2006/01/02")
+	imgPath := fmt.Sprintf("%s/%s/%s.%s", folderPath, dateStr, fileName, imageType)
 
 	// Create the image file.
 	imgFile, err := os.Create(imgPath)
 	if err != nil {
-		return "", "", 0, err
+		return UploadBase64Struct{}, err
 	}
 	defer imgFile.Close()
 
 	// Write the bytes into the image file.
 	_, err = imgFile.Write(imgBytes)
 	if err != nil {
-		return "", "", 0, err
+		return UploadBase64Struct{}, err
 	}
 	// Get the file size
 	fileInfo, err := imgFile.Stat()
 	if err != nil {
-		return "", "", 0, err
+		return UploadBase64Struct{}, err
 	}
 	fileSize := fileInfo.Size()
-	return fmt.Sprintf("%s.%s", fileName, imageType), imageType, fileSize, nil
+
+	resp := UploadBase64Struct{
+		FullPath: imgPath,
+		Name:     fileName,
+		Type:     imageType,
+		Size:     fileSize,
+	}
+
+	return resp, nil
 }
