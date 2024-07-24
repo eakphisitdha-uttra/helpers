@@ -10,7 +10,7 @@ import (
 	"github.com/nwaples/rardecode"
 )
 
-func RarExtractor(RARfileName string, extractDestination string) error {
+func ExtractRAR(RARfileName string, extractDestination string) error {
 
 	rr, err := rardecode.OpenReader(RARfileName, "")
 

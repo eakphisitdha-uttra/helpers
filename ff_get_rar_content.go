@@ -8,7 +8,7 @@ import (
 )
 
 // Get filename(s) from within the Archive
-func GetRarContents(RARfileName string) (string, error) {
+func GetRARContents(RARfileName string) (string, error) {
 
 	rr, err := rardecode.OpenReader(RARfileName, "")
 
