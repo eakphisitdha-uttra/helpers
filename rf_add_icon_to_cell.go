@@ -10,7 +10,7 @@ import (
 	"github.com/xuri/excelize/v2"
 )
 
-/* accept only .jpeg and .png*/
+// accept only .jpeg and .png*/
 
 func AddIconToCell(sheetName, filePath, column, row string, mergeCount int, f *excelize.File) error {
 
